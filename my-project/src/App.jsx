@@ -31,6 +31,57 @@ function App() {
       }
     })
   })
+  
+ useGSAP(() => {
+  const main = document.querySelector(".main");
+
+  function handleMouseMove(e) {
+    const xMove = (e.clientX / window.innerWidth - 0.5) * 40;
+    gsap.to([".imagesdiv .text", ".sky", ".bg"], {
+      x: `${xMove * 0.4}%`,
+      ease: "power3.out",
+      duration: 0.5,
+    });
+  }
+
+  function handleDeviceOrientation(e) {
+    // gamma is the left-right tilt in degrees (-90 to 90)
+    // Normalize gamma from -30 to 30 degrees for smoother control
+    let gamma = e.gamma;
+    if (gamma > 30) gamma = 30;
+    else if (gamma < -30) gamma = -30;
+
+    // Map gamma (-30 to 30) to xMove (-20 to 20)
+    const xMove = (gamma / 30) * 20;
+    gsap.to([".imagesdiv .text", ".sky", ".bg"], {
+      x: `${xMove * 0.4}%`,
+      ease: "power3.out",
+      duration: 0.5,
+    });
+  }
+
+  function setup() {
+    if (window.innerWidth > 768) {
+      // Desktop: mouse move
+      main?.addEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("deviceorientation", handleDeviceOrientation);
+    } else {
+      // Mobile: device orientation
+      main?.removeEventListener("mousemove", handleMouseMove);
+      window.addEventListener("deviceorientation", handleDeviceOrientation);
+    }
+  }
+
+  setup();
+  window.addEventListener("resize", setup);
+
+  // Cleanup function (React effect style)
+  return () => {
+    main?.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("deviceorientation", handleDeviceOrientation);
+    window.removeEventListener("resize", setup);
+  };
+}, [showContent]);
 
   return (
     <>
@@ -64,7 +115,7 @@ function App() {
           />
         </svg>
       </div>
-      {showContent && 
+      {showContent && (
       <div className='main w-full '>
         <div className='landing w-full h-screen bg-black '>
                   <div className="navbar absolute top-0 left-0 z-10 w-full py-4 px-4 sm:py-6 sm:px-10 bg-transparent flex items-center justify-between">
@@ -105,26 +156,32 @@ function App() {
                  </div>
 
              <div className='imagesdiv relative w-full h-screen overflow-hidden'>
-              <img className=' absolute top-0 left-0 w-full h-full object-cover' src='./sky.png' />
-              <img className=' absolute top-0 left-0 w-full h-full object-cover' src="./bg.png" alt="" />
-               <div className='text  flex flex-col  gap-10 absolute top-0 left-1/2 -translate-x-1/2 '>
-                  <h1 className='text-4xl sm:text-6xl md:text-6xl lg:text-[50px] -ml-20 text-white'>Grand</h1>
-                  <h3 className='text-4xl sm:text-6xl md:text-6xl lg:text-[50px] -ml-15 text-white'>Theft</h3>
-                  <h3 className='text-4xl sm:text-6xl md:text-6xl lg:text-[50px] -ml-20 text-white'>Auto</h3>
-               </div>
-             <img
-                  className="
-                    absolute
-                    left-1/2
-                    -translate-x-1/2
-                    scale-[1]
-                    bottom-[0%]   /* mobile: position near bottom */
-                    sm:top-1     /* from small screens up: position near top */
-                    sm:bottom-auto /* override bottom on sm+ */
-                  "
-                  src="/girlbg.png"
-                  alt="girl"
-                />
+              <img className='sky scale-[1.2] absolute top-0 left-0 w-full h-full object-cover' src='./sky.png' />
+              <img className='bg scale-[1.2] absolute top-0 left-0 w-full h-full object-cover' src="./bg.png" alt="" />
+    <div className="text text-white flex flex-col gap-3 absolute top-20 left-1/2 -translate-x-1/2 scale-[1.4] rotate-[-10deg]">
+                <h1 className="text-[10rem] leading-none -ml-40">grand</h1>
+                <h1 className="text-[10rem] leading-none ml-20">theft</h1>
+                <h1 className="text-[10rem] leading-none -ml-40">auto</h1>
+              </div>              
+           <img
+  className="
+    absolute
+    left-1/2
+    -translate-x-1/2
+    bottom-2
+    sm:top-1
+    sm:bottom-auto
+    w-[80%]       // Mobile: larger
+    sm:w-[60%]     // Tablet
+    md:w-[40%]     // Medium Desktop
+    lg:w-[35%]     // Large Desktop: smallest
+    max-w-[500px] 
+     // Prevent it from getting too large
+  "
+  src="/girlbg.png"
+  alt="girl"
+/>
+
 
              </div>
              <div className='btmbar absolute bottom-0 left-0  w-full py-10 px-10 bg-gradient-to-t from-black to-transparent '></div>
@@ -134,8 +191,48 @@ function App() {
              </div>
              
         </div>
+         <div className="w-full h-screen flex items-center justify-center bg-black">
+            <div className="cntnr flex text-white w-full h-[80%] ">
+              <div className="limg relative w-1/2 h-full">
+                <img
+                  className="absolute scale-[1.3] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+                  src="./imag.png"
+                  alt=""
+                />
+              </div>
+              <div className="rg w-[30%] py-30 bg-black">
+                <h1 className="text-8xl">Still Running,</h1>
+                <h1 className="text-8xl">Not Hunting</h1>
+                <p className="mt-10 text-xl font-[Helvetica_Now_Display]">
+                  Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                  Distinctio possimus, asperiores nam, omnis inventore nesciunt
+                  a architecto eveniet saepe, ducimus necessitatibus at
+                  voluptate.
+                </p>
+                <p className="mt-3 text-xl font-[Helvetica_Now_Display]">
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. At
+                  eius illum fugit eligendi nesciunt quia similique velit
+                  excepturi soluta tenetur illo repellat consectetur laborum
+                  eveniet eaque, dicta, hic quisquam? Ex cupiditate ipsa nostrum
+                  autem sapiente.
+                </p>
+                <p className="mt-10 text-xl font-[Helvetica_Now_Display]">
+                  Lorem ipsum dolor sit amet consectetur adipisicing elit. At
+                  eius illum fugit eligendi nesciunt quia similique velit
+                  excepturi soluta tenetur illo repellat consectetur laborum
+                  eveniet eaque, dicta, hic quisquam? Ex cupiditate ipsa nostrum
+                  autem sapiente.
+                </p>
+                <button className="bg-yellow-500 px-10 py-10 text-black mt-10 text-4xl">
+                  Download Now
+                </button>
+              </div>
+            </div>
+          </div>
       </div>
-      }
+     
+   
+     )}
       
     </>
   )
